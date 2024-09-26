@@ -1,32 +1,32 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mysql
+  name: mariadb
 spec:
   selector:
     matchLabels:
-      app: mysql
-      app.kubernetes.io/name: mysql
-  serviceName: mysql
+      app: mariadb
+      app.kubernetes.io/name: mariadb
+  serviceName: mariadb
   replicas: 3
   template:
     metadata:
       labels:
-        app: mysql
-        app.kubernetes.io/name: mysql
+        app: mariadb
+        app.kubernetes.io/name: mariadb
     spec:
       initContainers:
-      - name: init-mysql
+      - name: init-mariadb
         image: mariadb:latest
         command:
         - bash
         - "-c"
         - |
           set -ex
-          # 파드의 원래 인덱스에서 mysql server-id를 생성.
+          # 파드의 원래 인덱스에서 mariadb server-id를 생성.
           [[ $HOSTNAME =~ -([0-9]+)$ ]] || exit 1
           ordinal=${BASH_REMATCH[1]}
-          echo [mysqld] > /mnt/conf.d/server-id.cnf
+          echo [mariadbd] > /mnt/conf.d/server-id.cnf
           # 예약된 server-id=0 값을 피하기 위해 오프셋 추가.
           echo server-id=$((100 + $ordinal)) >> /mnt/conf.d/server-id.cnf
           # config-map에서 emptyDir로 적당한 conf.d 파일들을 복사.
@@ -40,7 +40,7 @@ spec:
           mountPath: /mnt/conf.d
         - name: config-map
           mountPath: /mnt/config-map
-      - name: clone-mysql
+      - name: clone-mariadb
         image: gcr.io/google-samples/xtrabackup:1.0
         command:
         - bash
@@ -54,7 +54,7 @@ spec:
           ordinal=${BASH_REMATCH[1]}
           [[ $ordinal -eq 0 ]] && exit 0
           # 이전 피어(peer)에서 데이터 복제.
-          ncat --recv-only mysql-$(($ordinal-1)).mysql 3307 | xbstream -x -C /var/lib/mysql
+          ncat --recv-only mariadb-$(($ordinal-1)).mariadb 3307 | xbstream -x -C /var/lib/mysql
           # 백업 준비.
           xtrabackup --prepare --target-dir=/var/lib/mysql
         volumeMounts:
@@ -64,13 +64,13 @@ spec:
         - name: conf
           mountPath: /etc/mysql/conf.d
       containers:
-      - name: mysql
+      - name: mariadb
         image: mariadb:latest
         env:
         - name: MYSQL_ALLOW_EMPTY_PASSWORD
           value: "1"
         ports:
-        - name: mysql
+        - name: mariadb
           containerPort: 3306
         volumeMounts:
         - name: data
@@ -124,13 +124,13 @@ spec:
 
           # Replication을 시작하여 복제를 완료해야 하는지 확인.
           if [[ -f change_master_to.sql.in ]]; then
-            echo "Waiting for mysqld to be ready (accepting connections)"
-            until mysql -h 127.0.0.1 -e "SELECT 1"; do sleep 1; done
+            echo "Waiting for mariadbd to be ready (accepting connections)"
+            until mariadb -h 127.0.0.1 -e "SELECT 1"; do sleep 1; done
 
             echo "Initializing replication from clone position"
-            mysql -h 127.0.0.1 \
+            mariadb -h 127.0.0.1 \
                   -e "$(<change_master_to.sql.in), \
-                          MASTER_HOST='mysql-0.mysql', \
+                          MASTER_HOST='mariadb-0.mariadb', \
                           MASTER_USER='root', \
                           MASTER_PASSWORD='', \
                           MASTER_CONNECT_RETRY=10; \
@@ -157,7 +157,7 @@ spec:
         emptyDir: {}
       - name: config-map
         configMap:
-          name: mysql
+          name: mariadb
   volumeClaimTemplates:
   - metadata:
       name: data
