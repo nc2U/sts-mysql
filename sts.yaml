@@ -26,7 +26,7 @@ spec:
           # 파드의 원래 인덱스에서 mariadb server-id를 생성.
           [[ $HOSTNAME =~ -([0-9]+)$ ]] || exit 1
           ordinal=${BASH_REMATCH[1]}
-          echo [mariadbd] > /mnt/conf.d/server-id.cnf
+          echo [mysqld] > /mnt/conf.d/server-id.cnf
           # 예약된 server-id=0 값을 피하기 위해 오프셋 추가.
           echo server-id=$((100 + $ordinal)) >> /mnt/conf.d/server-id.cnf
           # config-map에서 emptyDir로 적당한 conf.d 파일들을 복사.
@@ -124,7 +124,7 @@ spec:
 
           # Replication을 시작하여 복제를 완료해야 하는지 확인.
           if [[ -f change_master_to.sql.in ]]; then
-            echo "Waiting for mariadbd to be ready (accepting connections)"
+            echo "Waiting for mysqld to be ready (accepting connections)"
             until mariadb -h 127.0.0.1 -e "SELECT 1"; do sleep 1; done
 
             echo "Initializing replication from clone position"
