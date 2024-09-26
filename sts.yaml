@@ -17,7 +17,7 @@ spec:
     spec:
       initContainers:
       - name: init-mysql
-        image: mysql:5.7
+        image: mariadb:latest
         command:
         - bash
         - "-c"
@@ -65,7 +65,7 @@ spec:
           mountPath: /etc/mysql/conf.d
       containers:
       - name: mysql
-        image: mysql:5.7
+        image: mariadb:latest
         env:
         - name: MYSQL_ALLOW_EMPTY_PASSWORD
           value: "1"
@@ -84,14 +84,14 @@ spec:
             memory: 1Gi
         livenessProbe:
           exec:
-            command: ["mysqladmin", "ping"]
+            command: ["mariadb-admin", "ping"]
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
         readinessProbe:
           exec:
             # TCP 상에서 쿼리를 실행할 수 있는지 확인(skip-networking은 off).
-            command: ["mysql", "-e", "SELECT 1"]
+            command: ["mariadb", "-e", "SELECT 1"]
           initialDelaySeconds: 5
           periodSeconds: 2
           timeoutSeconds: 1
