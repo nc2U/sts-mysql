@@ -128,7 +128,7 @@ spec:
               value: "1"
           # Mount volume from persistent volume claim
           volumeMounts:
-            - name: datadir
+            - name: data
               mountPath: /var/lib/mysql/
             - name: mariadb-config
               mountPath: /etc/mysql/conf.d/
@@ -146,7 +146,7 @@ spec:
   
   volumeClaimTemplates:
     - metadata:
-        name: datadir
+        name: data
       spec:
         storageClassName: "nfs-client"
         accessModes: [ "ReadWriteOnce" ]
