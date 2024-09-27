@@ -8,11 +8,11 @@ data:
   primary.cnf: |
     [mariadb]
     log-bin                           # enable binary logging
-    log-basename=rebs-mariadb         # used to be independent of hostname changes (otherwise is in datadir/mysql)
+    log-basename=rebs-mariadb         # used to be independent of hostname changes (otherwise is in data/mysql)
   
   replica.cnf: |
     [mariadb]
-    log-basename=rebs-mariadb         # used to be independent of hostname changes (otherwise is in datadir/mysql)
+    log-basename=rebs-mariadb         # used to be independent of hostname changes (otherwise is in data/mysql)
   
   primary.sql: |
     CREATE USER 'rebs'@'%' IDENTIFIED BY 'secret';
