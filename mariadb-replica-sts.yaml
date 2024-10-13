@@ -16,7 +16,8 @@ data:
   
   primary.sql: |
     CREATE USER 'rebs'@'%' IDENTIFIED BY 'secret';
-    GRANT REPLICATION REPLICA ON *.* TO 'rebs'@'%';
+    -- GRANT REPLICATION REPLICA ON *.* TO 'rebs'@'%';
+    GRANT ALL PRIVILEGES ON *.* TO 'rebs'@'%' WITH GRANT OPTION;
     CREATE DATABASE rebs;
   
   secondary.sql: |
