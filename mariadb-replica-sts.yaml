@@ -17,7 +17,7 @@ data:
   primary.sql: |
     CREATE USER 'rebs'@'%' IDENTIFIED BY 'secret';
     -- GRANT REPLICATION REPLICA ON *.* TO 'rebs'@'%';
-    GRANT ALL PRIVILEGES ON *.* TO 'rebs'@'%' WITH GRANT OPTION;
+    GRANT ALL PRIVILEGES ON *.* TO 'rebs'@'%';
     FLUSH PRIVILEGES;
     CREATE DATABASE rebs;
   
