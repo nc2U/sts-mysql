@@ -149,7 +149,7 @@ spec:
           emptyDir: {}
         - name: backup
           nfs:
-            path: /mnt/nfs/mysql/
+            path: /mnt/nfs/mysql/backups/
             server: 49.247.26.88
   
   volumeClaimTemplates:
