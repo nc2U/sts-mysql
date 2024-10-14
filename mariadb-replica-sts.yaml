@@ -4,7 +4,6 @@ metadata:
   namespace: default
   name: mariadb-configmap
 data:
-  
   primary.cnf: |
     [mariadb]
     log-bin                     # enable binary logging
