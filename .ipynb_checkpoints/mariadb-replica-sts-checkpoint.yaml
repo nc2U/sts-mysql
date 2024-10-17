@@ -4,18 +4,19 @@ metadata:
   namespace: default
   name: mariadb-configmap
 data:
+  
   primary.cnf: |
     [mariadb]
-    log-bin                     # enable binary logging
-    log-basename=rebs-mariadb   # used to be independent of hostname changes (otherwise is in data/mysql)
+    log-bin                           # enable binary logging
+    log-basename=rebs-mariadb         # used to be independent of hostname changes (otherwise is in data/mysql)
   
   replica.cnf: |
     [mariadb]
-    log-basename=rebs-mariadb   # used to be independent of hostname changes (otherwise is in data/mysql)
+    log-basename=rebs-mariadb         # used to be independent of hostname changes (otherwise is in data/mysql)
   
   primary.sql: |
     CREATE USER 'rebs'@'%' IDENTIFIED BY 'secret';
-    GRANT ALL PRIVILEGES ON *.* TO 'rebs'@'%';
+    GRANT REPLICATION REPLICA ON *.* TO 'rebs'@'%';
     CREATE DATABASE rebs;
   
   secondary.sql: |
@@ -23,9 +24,7 @@ data:
     # service `mariadb-service` in advance as an FQDN.
     # No need to use master_port
     CHANGE MASTER TO
-    # MASTER_HOST는 만약 namespace나 service 이름 등을 본인의 환경에 맞춰서 배포하는 경우 MASTER_HOST 값을 변경.
-    # mariadb-0.<headless service name>.<namespace name>.svc.cluster.local
-    MASTER_HOST='mariadb-0.mariadb-service.default.svc.cluster.local',
+    MASTER_HOST='mariadb-0.mariadb-service.default.svc.cluster.local', # 만약 namespace나 service 이름 등을 본인의 환경에 맞춰서 배포하는 경우 MASTER_HOST 값을 변경해야 한다 mariadb-0.<headless service name>.<namespace name>.svc.cluster.local
     MASTER_USER='rebs',
     MASTER_PASSWORD='secret',
     MASTER_CONNECT_RETRY=10;
@@ -135,8 +134,6 @@ spec:
               mountPath: /etc/mysql/conf.d/
             - name: initdb
               mountPath: /docker-entrypoint-initdb.d
-            - name: backup
-              mountPath: /var/backups/
       volumes:
         - name: mariadb-config-map
           configMap:
@@ -146,10 +143,6 @@ spec:
           emptyDir: {}
         - name: initdb
           emptyDir: {}
-        - name: backup
-          nfs:
-            path: /mnt/nfs/mysql/backups/
-            server: 49.247.26.88
   
   volumeClaimTemplates:
     - metadata:
