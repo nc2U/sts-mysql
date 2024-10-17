@@ -135,8 +135,6 @@ spec:
               mountPath: /etc/mysql/conf.d/
             - name: initdb
               mountPath: /docker-entrypoint-initdb.d
-            - name: backup
-              mountPath: /var/backups/
       volumes:
         - name: mariadb-config-map
           configMap:
@@ -146,11 +144,6 @@ spec:
           emptyDir: {}
         - name: initdb
           emptyDir: {}
-        - name: backup
-          nfs:
-            path: /mnt/nfs/mysql/backups/
-            server: 49.247.26.88
-  
   volumeClaimTemplates:
     - metadata:
         name: data
