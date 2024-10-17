@@ -148,7 +148,7 @@ spec:
     - metadata:
         name: data
       spec:
-        storageClassName: "nfs-client"
+        storageClassName: "nfs-client-1"
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
